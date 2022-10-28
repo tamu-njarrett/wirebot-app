@@ -26,7 +26,7 @@ python-dotenv==0.21.0
 simple-websocket==0.8.1
 six==1.11.0
 SQLAlchemy==1.4.42
-Turbo-Flask @ git+https://github.com/miguelgrinberg/turbo-flask@0292e5831fb48cb32312ca5dec323fdc9c665375
+Turbo-Flask==0.8.0
 Werkzeug==2.2.2
 wsproto==1.2.0
 WTForms==2.1
