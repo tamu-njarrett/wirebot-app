@@ -1,6 +1,7 @@
 from datetime import datetime
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from flask import current_app
+from sqlalchemy import ForeignKey
 from wirebot import db, login_manager
 from flask_login import UserMixin
 
@@ -45,3 +46,20 @@ class Post(db.Model):
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
 
+class Photo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_uploaded = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    picture = db.Column(db.String(30), nullable=True)
+    location = db.relationship('Location', backref='photo_taken_at_loc', lazy=True)
+
+    def __repr__(self):
+        return f"Photo('{self.date_uploaded}', '{self.location}')"
+
+class Location(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    payload_loc = db.Column(db.Integer, nullable=False)
+    horizontal_loc = db.Column(db.Integer, nullable=False)
+    picture_id = db.Column(db.Integer, ForeignKey('photo.id'), nullable=False)    # referencing where picture is taken
+
+    def __repr__(self):
+        return f"Location('{self.payload_loc}',{self.horizontal_loc}')"

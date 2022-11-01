@@ -1,9 +1,9 @@
 from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from flask_login import current_user, login_required
 from wirebot import db
-from wirebot.models import Post
-from wirebot.posts.forms import PostForm
-from wirebot.posts.utils import save_picture_post
+from wirebot.models import Post, Photo, Location
+from wirebot.posts.forms import PostForm, PictureForm
+from wirebot.posts.utils import save_picture_post, save_picture_plant
 
 
 posts = Blueprint('posts', __name__)
@@ -59,3 +59,20 @@ def delete_post(post_id):
     db.session.commit()
     flash('Post deleted!', 'danger')
     return redirect(url_for('main.home'))
+
+@posts.route("/pictures", methods=['GET', 'POST'])
+@login_required
+def pictures():
+    form = PictureForm()
+    if form.validate_on_submit():
+        photos = Photo()
+        if form.picture_list.data:
+            save_picture_plant(form.picture_list.data, photos)
+        db.session.add(photos)
+        db.session.commit()
+        flash('Your pictures have been added!', 'success')
+        return redirect(url_for('posts.pictures'))
+    
+    page = request.args.get('page', 1, type=int)
+    photos = Photo.query.order_by(Photo.date_uploaded.desc()).paginate(page=page, per_page=5)
+    return render_template('pictures.html', title='Pictures', form=form, photos=photos, legend='Pictures')

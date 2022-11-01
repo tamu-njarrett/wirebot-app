@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+<body>
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">{{ legend }}</legend>
+            <!--Upload picture with post-->
+            <div class="form-group">
+                {{ form.picture_list.label() }}
+                {{ form.picture_list(class="form-control-file") }}
+                {% if form.picture_list.errors %}
+                    {% for error in form.picture_list.errors %}
+                        <span class="text-danger">{{ error }}</span></br>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+  </div>
+  <body>
+    {% for photo in photos.items %}
+      <img src="{{ url_for('static', filename='crop_pics/' + photo.picture) }}" style="float:left;width:30%;margin-right:1%;margin-bottom:0.5em">
+    {% endfor %}
+    <p style="clear:both;"></p>
+  </body>
+    {% for page_num in photos.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if photos.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('posts.pictures', page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('posts.pictures', page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
+    {% endfor %}
+{% endblock content %}
+</body>

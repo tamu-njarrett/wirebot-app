@@ -147,3 +147,10 @@ a.article-title:hover {
   padding: 6px;
   text-align: center;
 }
+
+.crop-picture {
+  float: left;
+  width: 30%;
+  margin-right: 1%;
+  margin-bottom: 0.5rem;
+}
