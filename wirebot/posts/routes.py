@@ -74,5 +74,5 @@ def pictures():
         return redirect(url_for('posts.pictures'))
     
     page = request.args.get('page', 1, type=int)
-    photos = Photo.query.order_by(Photo.date_uploaded.desc()).paginate(page=page, per_page=5)
+    photos = Photo.query.order_by(Photo.date_uploaded.desc()).paginate(page=page, per_page=12)
     return render_template('pictures.html', title='Pictures', form=form, photos=photos, legend='Pictures')

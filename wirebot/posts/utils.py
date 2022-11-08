@@ -26,17 +26,18 @@ def save_picture_post(form_picture, post):
     return picture_fn
 
 ##### Implement for loop for list of picture files ####
-def save_picture_plant(picture, photo):
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(picture.filename)
-    picture_fn = random_hex + f_ext
-    picture_path = os.path.join(current_app.root_path, 'static/crop_pics', picture_fn)
+def save_picture_plant(picture_list, photos):
+    for pic in picture_list:
+        random_hex = secrets.token_hex(8)
+        _, f_ext = os.path.splitext(pic.filename)
+        picture_fn = random_hex + f_ext
+        picture_path = os.path.join(current_app.root_path, 'static/crop_pics', picture_fn)
 
-    # update db
-    photo.picture = picture_fn
-    db.session.commit()
+        # update db
+        photos.picture = picture_fn
+        db.session.commit()
 
-    # Scaling image
-    im = Image.open(picture)
-    im = im.resize((500, 500))
-    im.save(picture_path)
+        # Scaling image
+        im = Image.open(pic)
+        im = im.resize((500, 500))
+        im.save(picture_path)

@@ -55,11 +55,26 @@ class Photo(db.Model):
     def __repr__(self):
         return f"Photo('{self.date_uploaded}', '{self.location}')"
 
+
+# Update to current wirebot status
+class Status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    connection = db.Column(db.Boolean, nullable=False)  # if network connection: 1, else: 0
+    moving = db.Column(db.Boolean, nullable=False)  # if moving: 1, else 0
+    picture_count = db.Column(db.Integer, nullable=False)    # number of pictures taken per session
+    location = db.relationship('Location', backref='status_at_loc', lazy=True)
+
+    def __repr__(self):
+        return f"Status('{self.connection}','{self.moving}','{self.picture_count}')"
+
+
+# Location of wirebot
 class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     payload_loc = db.Column(db.Integer, nullable=False)
     horizontal_loc = db.Column(db.Integer, nullable=False)
-    picture_id = db.Column(db.Integer, ForeignKey('photo.id'), nullable=False)    # referencing where picture is taken
+    picture_id = db.Column(db.Integer, db.ForeignKey('photo.id'), nullable=False)    # referencing where picture is taken
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=False)
 
     def __repr__(self):
-        return f"Location('{self.payload_loc}',{self.horizontal_loc}')"
+        return f"Location('{self.payload_loc}','{self.horizontal_loc}')"

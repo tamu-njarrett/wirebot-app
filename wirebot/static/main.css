@@ -148,9 +148,11 @@ a.article-title:hover {
   text-align: center;
 }
 
-.crop-picture {
+/* Class inheritence not working for picture layout, coded in as a style within pictures.html */
+.upload-picture {
   float: left;
-  width: 30%;
+  width: 24%;
+  padding: 5px;
   margin-right: 1%;
   margin-bottom: 0.5rem;
 }

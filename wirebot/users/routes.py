@@ -133,3 +133,28 @@ def dashboard():
     if "stop" in request.form:
         pass
     return render_template('dashboard.html', title='Dashboard')
+
+
+@users.app_context_processor    # Using app_context_processor to inject values available even outside blueprint
+def inject_status():
+    load = [int(random.random() * 100) / 10 for _ in range(3)]
+    return {'load1': load[0], 'load5': load[1], 'load15': load[2]}
+
+@users.route("/Wirebot_Status", methods=['GET'])
+@login_required
+def wirebot_status():
+
+    return render_template('wirebot_status.html', title='Wirebot Status')
+
+
+@users.route("/Calendar", methods=['GET', 'POST'])
+@login_required
+def calendar():
+
+    return render_template('calendar.html', title='Calendar')
+
+@users.route("/Alerts", methods=['GET'])
+@login_required
+def alerts():
+
+    return render_template('alerts.html', title='Alerts')
