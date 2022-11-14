@@ -61,6 +61,7 @@ class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     connection = db.Column(db.Boolean, nullable=False)  # if network connection: 1, else: 0
     moving = db.Column(db.Boolean, nullable=False)  # if moving: 1, else 0
+    limit = db.Column(db.Integer)   # at which limit switch, 0 if not at a limit
     picture_count = db.Column(db.Integer, nullable=False)    # number of pictures taken per session
     location = db.relationship('Location', backref='status_at_loc', lazy=True)
 

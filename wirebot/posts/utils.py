@@ -1,7 +1,7 @@
 import os
 import secrets
 from wirebot import db
-from wirebot.models import Post
+from wirebot.models import Photo
 from PIL import Image
 from flask import current_app
 
@@ -26,18 +26,24 @@ def save_picture_post(form_picture, post):
     return picture_fn
 
 ##### Implement for loop for list of picture files ####
-def save_picture_plant(picture_list, photos):
+def save_picture_plant(picture_list):
+    photo_object_list = []*len(picture_list)
     for pic in picture_list:
+        current_photo = Photo()
         random_hex = secrets.token_hex(8)
         _, f_ext = os.path.splitext(pic.filename)
         picture_fn = random_hex + f_ext
         picture_path = os.path.join(current_app.root_path, 'static/crop_pics', picture_fn)
 
         # update db
-        photos.picture = picture_fn
+        current_photo.picture = picture_fn
         db.session.commit()
 
         # Scaling image
         im = Image.open(pic)
         im = im.resize((500, 500))
         im.save(picture_path)
+
+        photo_object_list.append(current_photo)
+
+    return photo_object_list

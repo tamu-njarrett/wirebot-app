@@ -1,7 +1,8 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app
 from flask_login import login_user, current_user, logout_user, login_required
 from wirebot import db, bcrypt
-from wirebot.models import User, Post
+from wirebot.models import User, Post, Photo, Status, Location
+from wirebot.utils import run_wirebot, stop_wirebot
 from wirebot.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm, DashboardForm
 from wirebot.users.utils import save_picture_user, send_reset_email, update_dashboard
 import random, sys, threading
@@ -124,16 +125,19 @@ def before_request():
     # Starts background thread for function we need to run before first client connects
     threading.Thread(target=update_dashboard, args=(current_app._get_current_object(), )).start()
 
-### Update request for user input
+### Update request for user input on dashboard
 @users.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def dashboard():
+    loc = Location(payload_loc=0,horizontal_loc=0)
+    status = Status(connection=0,moving=0,picture_count=0)
     if "run" in request.form:
-        pass
+        pass; run_wirebot(status)
     if "stop" in request.form:
-        pass
-    return render_template('dashboard.html', title='Dashboard')
+        pass; stop_wirebot(status)
 
+
+    return render_template('dashboard.html', title='Dashboard')
 
 @users.app_context_processor    # Using app_context_processor to inject values available even outside blueprint
 def inject_status():
@@ -143,7 +147,7 @@ def inject_status():
 @users.route("/Wirebot_Status", methods=['GET'])
 @login_required
 def wirebot_status():
-
+    
     return render_template('wirebot_status.html', title='Wirebot Status')
 
 
@@ -158,3 +162,4 @@ def calendar():
 def alerts():
 
     return render_template('alerts.html', title='Alerts')
+

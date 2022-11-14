@@ -65,14 +65,15 @@ def delete_post(post_id):
 def pictures():
     form = PictureForm()
     if form.validate_on_submit():
-        photos = Photo()
         if form.picture_list.data:
-            save_picture_plant(form.picture_list.data, photos)
-        db.session.add(photos)
-        db.session.commit()
+            new_photos = save_picture_plant(form.picture_list.data) # Getting back list of Photo class objects
+        for pic in new_photos:
+            db.session.add(pic)
+            db.session.commit()
         flash('Your pictures have been added!', 'success')
         return redirect(url_for('posts.pictures'))
     
     page = request.args.get('page', 1, type=int)
     photos = Photo.query.order_by(Photo.date_uploaded.desc()).paginate(page=page, per_page=12)
     return render_template('pictures.html', title='Pictures', form=form, photos=photos, legend='Pictures')
+
