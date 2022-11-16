@@ -136,7 +136,7 @@ a.article-title:hover {
 }
 
 .load {
-  float: right;
+  float: inherit;
   width: 300px;
   border: 1px solid black;
   margin-left: 10px;

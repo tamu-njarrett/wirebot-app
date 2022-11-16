@@ -7,7 +7,6 @@ sockets = Blueprint('sockets', __name__)
 @sockets.on('connect')
 def connect():
     emit('after connect', {'data':'Howdy'})
-    print('Client device connected')
 
 @sockets.on('disconnect')
 def disconnect():

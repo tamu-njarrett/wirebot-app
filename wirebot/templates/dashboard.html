@@ -18,14 +18,17 @@
             <p class="text-secondary">{{ current_user.email }}</p>
         </div>
     </div>
-    <fieldset class="form-group">
-        <legend class="border-bottom mb-4">Dashboard</legend>
-        {% include "dashboard_values.html" %}
-        <div class="form-group">
-            <form>
-                <button class="b b-run" name="Run" value="run">Run</button>
-                <button class="b b-stop" name="Stop" value="stop">Stop</button>
-            </form>
+        <legend class="border-bottom mb-4" style="font-size:40px">Dashboard</legend>
+
+        <div class="body">
+            <p class="h5">Wirebot Controls</p>
+            <div class="form-group">
+                <form>
+                    <button class="b b-run" name="Run" value="run">Run</button>
+                    <button class="b b-stop" name="Stop" value="stop">Stop</button>
+                </form>
+            </div>
+            {% include "dashboard_values.html" %}
         </div>
     {% endblock content %}
 </body>

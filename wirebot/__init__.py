@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from turbo_flask import Turbo
-from flask_socketio import SocketIO
+#from flask_socketio import SocketIO
 from wirebot.config import Config
 
 
@@ -17,7 +17,7 @@ login_manager.login_view = 'users.login'  # bootstrap: must be logged in reach a
 login_manager.login_message_category = 'info'   # bootstrap: flash message for logging in
 mail = Mail()
 turbo = Turbo()
-socketio = SocketIO()
+#socketio = SocketIO()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -39,5 +39,5 @@ def create_app(config_class=Config):
     app.register_blueprint(main)
     app.register_blueprint(errors)
 
-    socketio.init_app(app)
+    #socketio.init_app(app)
     return app

@@ -5,7 +5,7 @@ from wirebot.models import User, Post, Photo, Status, Location
 from wirebot.utils import run_wirebot, stop_wirebot
 from wirebot.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm, DashboardForm
 from wirebot.users.utils import save_picture_user, send_reset_email, update_dashboard
-import random, sys, threading
+import random, threading
 
 
 users = Blueprint('users', __name__, template_folder='templates')
@@ -112,11 +112,11 @@ def reset_token(token):
 ### Placeholder for real time values coming from Jetson TCP stream
 @users.app_context_processor    # Using app_context_processor to inject values available even outside blueprint
 def inject_load():
-    if sys.platform.startswith('linux'): 
-        with open('/proc/loadavg', 'rt') as f:
-            load = f.read().split()[0:3]
-    else:
-        load = [int(random.random() * 100) / 10 for _ in range(3)]
+    #load = [int(random.random() * 100) / 10 for _ in range(3)]
+    load = [int(random.random() * 100), int(random.randint(1,2)), int(random.random() * 1000)]
+    # wirebot_position = int(random.random() * 30)
+    # crop_row = int(random.uniform(0,2) * 2)
+    # run_time = time.localtime() - start_time()
     return {'load1': load[0], 'load5': load[1], 'load15': load[2]}
 
 
@@ -139,10 +139,10 @@ def dashboard():
 
     return render_template('dashboard.html', title='Dashboard')
 
-@users.app_context_processor    # Using app_context_processor to inject values available even outside blueprint
-def inject_status():
-    load = [int(random.random() * 100) / 10 for _ in range(3)]
-    return {'load1': load[0], 'load5': load[1], 'load15': load[2]}
+# @users.app_context_processor    # Using app_context_processor to inject values available even outside blueprint
+# def inject_status():
+#     load = [int(random.random() * 100) / 10 for _ in range(3)]
+#     return {'load1': load[0], 'load5': load[1], 'load15': load[2]}
 
 @users.route("/Wirebot_Status", methods=['GET'])
 @login_required
