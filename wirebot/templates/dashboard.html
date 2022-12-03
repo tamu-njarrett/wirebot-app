@@ -21,13 +21,15 @@
         <legend class="border-bottom mb-4" style="font-size:40px">Dashboard</legend>
 
         <div class="body">
-            <p class="h5">Wirebot Controls</p>
+            <p class="h5" font-weight="bold">Wirebot Controls</p>
             <div class="form-group">
                 <form>
                     <button class="b b-run" name="Run" value="run">Run</button>
                     <button class="b b-stop" name="Stop" value="stop">Stop</button>
+                    <button class="b b-row" name="Row" value="row">Row</button>
                 </form>
             </div>
+            <p class="h5" font-weight="bold">Wirebot Status</p>
             {% include "dashboard_values.html" %}
         </div>
     {% endblock content %}

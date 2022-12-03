@@ -13,3 +13,8 @@ def run_wirebot(status):
 def stop_wirebot(status):
 
     return status
+
+# send TCP/IP message to Jetson to transition to Row 1/Row 2
+def row_wirebot(status):
+
+    return status

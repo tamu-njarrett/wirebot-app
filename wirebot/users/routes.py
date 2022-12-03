@@ -2,10 +2,10 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import login_user, current_user, logout_user, login_required
 from wirebot import db, bcrypt
 from wirebot.models import User, Post, Photo, Status, Location
-from wirebot.utils import run_wirebot, stop_wirebot
+from wirebot.utils import run_wirebot, stop_wirebot, row_wirebot
 from wirebot.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm, DashboardForm
 from wirebot.users.utils import save_picture_user, send_reset_email, update_dashboard
-import random, threading
+import random, threading, calendar, datetime
 
 
 users = Blueprint('users', __name__, template_folder='templates')
@@ -135,6 +135,8 @@ def dashboard():
         pass; run_wirebot(status)
     if "stop" in request.form:
         pass; stop_wirebot(status)
+    if "row" in request.form:
+        pass; row_wirebot(status)
 
 
     return render_template('dashboard.html', title='Dashboard')
@@ -151,11 +153,14 @@ def wirebot_status():
     return render_template('wirebot_status.html', title='Wirebot Status')
 
 
+# Calendar display *** Incorporate time preset on specific days
 @users.route("/Calendar", methods=['GET', 'POST'])
 @login_required
-def calendar():
-
-    return render_template('calendar.html', title='Calendar')
+def calendar_page():
+    currentMonth = datetime.datetime.now().month
+    currentYear = datetime.datetime.now().year
+    calendar_current_month = calendar.month(currentYear, currentMonth)
+    return render_template('calendar_page.html', title='Calendar', calendar_current_month=calendar_current_month)
 
 @users.route("/Alerts", methods=['GET'])
 @login_required

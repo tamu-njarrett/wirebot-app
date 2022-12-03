@@ -134,11 +134,18 @@ a.article-title:hover {
 .b-stop:hover {
   background-color: rgb(189, 58, 58);
 }
+.b-row {
+  background-color: rgba(230, 230, 42, 0.701);
+  border-radius: 10px;
+}
+.b-row:hover {
+  background-color: rgb(185, 185, 31);
+}
 
 .load {
   float: inherit;
   width: 300px;
-  border: 1px solid black;
+  border: 3px solid black;
   margin-left: 10px;
   margin-bottom: 10px;
   padding: 10px;
