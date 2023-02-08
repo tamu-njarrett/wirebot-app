@@ -1,13 +1,16 @@
-from flask import Blueprint
 from flask_socketio import emit
+from wirebot import socketio
 
-sockets = Blueprint('sockets', __name__)
 
 # Decorator for SocketIO events
-@sockets.on('connect')
-def connect():
-    emit('after connect', {'data':'Howdy'})
+@socketio.event
+def connect(sid, environ):
+    print(sid, 'connected')
 
-@sockets.on('disconnect')
-def disconnect():
-    print('Client device disconnected')
+@socketio.event
+def disconnect(sid):
+    print(sid, 'disconnected')
+
+@socketio.event
+def message(data):
+    print('Message received: ' + data)

@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from wirebot import db
 from wirebot.models import Post, Photo, Location
 from wirebot.posts.forms import PostForm, PictureForm
-from wirebot.posts.utils import save_picture_post, save_picture_plant
+from wirebot.posts.utils import save_picture_post, save_picture_plant, save_picture_ftp
 
 
 posts = Blueprint('posts', __name__)
@@ -72,6 +72,11 @@ def pictures():
             db.session.commit()
         flash('Your pictures have been added!', 'success')
         return redirect(url_for('posts.pictures'))
+
+    new_ftp_photos = save_picture_ftp()
+    for pic in new_ftp_photos:
+        db.session.add(pic)
+        db.session.commit()
     
     page = request.args.get('page', 1, type=int)
     photos = Photo.query.order_by(Photo.date_uploaded.desc()).paginate(page=page, per_page=12)

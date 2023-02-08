@@ -5,9 +5,9 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from turbo_flask import Turbo
-#from flask_socketio import SocketIO
 from wirebot.config import Config
 
+# App factory
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -17,11 +17,11 @@ login_manager.login_view = 'users.login'  # bootstrap: must be logged in reach a
 login_manager.login_message_category = 'info'   # bootstrap: flash message for logging in
 mail = Mail()
 turbo = Turbo()
-#socketio = SocketIO()
 
-def create_app(config_class=Config):
+def create_app(config_class=Config, debug=False):
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.debug = debug
 
     db.init_app(app)
     migrate.init_app(app, db)   # for updating models
@@ -39,5 +39,4 @@ def create_app(config_class=Config):
     app.register_blueprint(main)
     app.register_blueprint(errors)
 
-    #socketio.init_app(app)
     return app

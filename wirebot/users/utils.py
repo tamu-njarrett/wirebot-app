@@ -43,4 +43,3 @@ def update_dashboard(app):
         while True:
             time.sleep(5)
             turbo.push(turbo.replace(render_template('dashboard_values.html'), 'dashboard_values'))    # sending update to all connected clients
-            print('Pushing updates')
