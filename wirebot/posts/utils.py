@@ -61,7 +61,6 @@ def save_picture_ftp():
     for file in contents:
         unique_photo = True
         f_name, f_ext = os.path.splitext(file)
-        print(f_ext)
         if f_ext == ('.JPG' or '.jpg' or '.PNG' or '.png' or '.HEIC'):
             for pic in photos:
                 if file == pic.picture:

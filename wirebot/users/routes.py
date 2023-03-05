@@ -2,12 +2,12 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import login_user, current_user, logout_user, login_required
 from wirebot import db, bcrypt
 from wirebot.models import User, Post, Photo, Status, Location
-from wirebot.utils import run_wirebot, stop_wirebot, row_wirebot
+from wirebot.utils import run_wirebot, stop_wirebot, change_row_wirebot
 from wirebot.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm, DashboardForm
 from wirebot.users.utils import save_picture_user, send_reset_email, update_dashboard
-import random, threading, calendar, datetime
+import random, threading, calendar, datetime, simple_websocket
 
-
+command = ''
 users = Blueprint('users', __name__, template_folder='templates')
 
 @users.route("/register", methods=['GET', 'POST'])
@@ -130,14 +130,22 @@ def before_request():
 @users.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def dashboard():
+    global command
     loc = Location(payload_loc=0,horizontal_loc=0)
     status = Status(connection=0,moving=0,picture_count=0)
-    if "run" in request.form:
-        pass; run_wirebot(status)
-    if "stop" in request.form:
-        pass; stop_wirebot(status)
-    if "row" in request.form:
-        pass; row_wirebot(status)
+    if request.method == 'POST':
+        if request.form.get('run') == 'run':
+            command = 'run'
+            run_wirebot(status)
+        elif request.form.get('stop') == 'stop':
+            command = 'stop'
+            stop_wirebot(status)
+        elif request.form.get('row') == 'row':
+            command = 'row'
+            change_row_wirebot(status)
+
+    elif request.method == 'GET':
+        return render_template('dashboard.html')
 
 
     return render_template('dashboard.html', title='Dashboard')
@@ -158,6 +166,7 @@ def wirebot_status():
 @users.route("/Calendar", methods=['GET', 'POST'])
 @login_required
 def calendar_page():
+    print('Routed to calendar')
     currentMonth = datetime.datetime.now().month
     currentYear = datetime.datetime.now().year
     calendar_current_month = calendar.month(currentYear, currentMonth)
@@ -169,3 +178,39 @@ def alerts():
 
     return render_template('alerts.html', title='Alerts')
 
+
+# Websocket namespace for connection between App/Jetson
+@users.route('/socket', websocket=True)
+def socket():
+    ws = simple_websocket.Server(request.environ)
+    global command
+    if ws.connected:
+        print('Client connected')
+
+    try:
+        while True:
+            if command == 'run':
+                ws.send(f'command={command}')
+            elif command == 'stop':
+                ws.send(f'command={command}')
+            elif command =='row':
+                ws.send(f'command={command}')
+
+    except simple_websocket.ConnectionClosed:
+        print(f'Client disconnected, code: {ws.close_reason}')
+
+    # try:
+    #     while True:
+    #         data = ws.receive()
+    #         if 'status' in data:
+    #             print(f'{data}')
+    #             ws.send('status update acknowledged')
+
+    #         else:
+    #             print(f'other message: {data}')
+    #             ws.send('message acknowledged')
+
+    # except simple_websocket.ConnectionClosed:
+    #     print(f'Client disconnected, code: {ws.close_reason}')
+
+    return ''
