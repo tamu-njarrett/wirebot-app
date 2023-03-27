@@ -1,6 +1,6 @@
-import os, secrets, time
+import os, secrets, time, simple_websocket
 from PIL import Image
-from flask import url_for, render_template, current_app
+from flask import url_for, render_template, current_app, request
 from flask_mail import Message
 from wirebot import mail, turbo
 
