@@ -1,7 +1,9 @@
 from . import main
 from flask import render_template, request, current_app
+from sqlalchemy import select, update
 from wirebot import db
-from wirebot.models import Post
+from wirebot.models import Post, Status, Buttons
+from wirebot.utils import reset_buttons, reset_status, connection, capturing, rotating, shifting, finishing
 import simple_websocket, os
 
 
@@ -18,55 +20,58 @@ def home():
 def about():
     return render_template('about.html', title='About')
 
-@main.route('/echo', websocket=True)
-def echo():
-    ws = simple_websocket.Server(request.environ, ping_interval=25)
+@main.route('/status', websocket=True)
+def status():
+    ws = simple_websocket.Server(request.environ, ping_interval=25) # instantiate websocket class
     if ws.connected:
         print('Connected, preparing to send status update...')
+        reset_status()  # resetting all status types 
+        reset_buttons   # reset button states
+        
+    # Handshake loop with Jetson
+    while True:
+        data = ws.receive(0)
+        if data == 'handshake':
+            ws.send('ready')
+            connection()    # update connection status
+            break
 
     try:
         while True:
-            status_file_path = os.path.join(current_app.root_path, 'status_file.txt')
-            with open(status_file_path, 'r') as status_file:
-                current_command = status_file.read()
-                if 'new' in current_command:
-                    c_new, command = current_command.split()
-                    ws.send(command)        # sending update command
-                    data = ws.receive()     # receiving acknowledge
-                    if 'status' in data:
-                        print(f'Actual status: {data}')
-                    else:
-                        print(f'Other message received: {data}')
-                        
-                    with open(status_file_path, 'w') as status_file:
-                        status_file.write(f'old {command}')
+            stop_pressed = Buttons.query.filter_by(id=1).first().stop
+            if stop_pressed == True:
+                ws.send('status=stop')
+                db.session.execute(update(Buttons), [{'id': 1, 'stop': 0}])
+                db.session.commit()
 
-            # if ws.receive():
-            #     data = ws.receive()
-            #     if 'status' in data:
-            #         print(f'Wirebot actual status: {data}')
+            else:
+                data = ws.receive(0)
+                if data == 'capturing':
+                    capturing()
+            # with open(status_file_path, 'r') as status_file:
+            #     current_command = status_file.read()
+            #     if 'new' in current_command:
+            #         c_new, command = current_command.split()
+            #         ws.send(command)        # sending update command
+            #        # data = ws.receive()     # receiving acknowledge
+            #        # if 'status' in data:
+            #        #     print(f'Actual status: {data}')
+            #        # else:
+            #        #     print(f'Other message received: {data}')
+
+            #         with open(status_file_path, 'w') as status_file:
+            #             status_file.write(f'old {command}')
             #     else:
-            #         print(f'Other message received: {data}')
+            #         data = ws.receive(0)
+            #         if data == 'capturing':
+            #             capturing()
+                    
 
     except simple_websocket.ConnectionClosed:
-        print(f'Clinet disconnected, code: {ws.close_reason}')
+        print(f'Client disconnected, code: {ws.close_reason}')
+        reset_status()
+
+    ws.close()
+    reset_status()
 
     return ''
-
-    # ws = simple_websocket.Server(request.environ, ping_interval=25)
-    # if ws.connected:
-    #     print('Client connected')
-    # try:
-    #     while True:
-    #         data = ws.receive()
-    #         if 'status' in data:
-    #             print(f'{data}')
-    #             ws.send('status update acknowledged')
-
-    #         else:
-    #             print(f'other message: {data}')
-    #             ws.send('message acknowledged')
-
-    # except simple_websocket.ConnectionClosed:
-    #     print(f'Client disconnected, code: {ws.close_reason}')
-    #     pass

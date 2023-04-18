@@ -54,19 +54,20 @@ def save_picture_ftp():
     photo_object_list = []
     photos = Photo.query.order_by(Photo.date_uploaded.desc())
 
-    os.chdir("H:\\Documents\\2022 Fall\\ECEN 403\\code\\ftp-test")
+    os.chdir("E:\\Documents\\2022 Fall\\ECEN 403\\code\\ftp-test")
     contents = os.listdir()
 
     # Grabbing list of new photos from current directory
     for file in contents:
         unique_photo = True
         f_name, f_ext = os.path.splitext(file)
-        if f_ext == ('.JPG' or '.jpg' or '.PNG' or '.png' or '.HEIC'):
+        if (f_ext == '.JPG') or (f_ext == '.jpg') or (f_ext == '.PNG') or (f_ext == '.png'):
             for pic in photos:
                 if file == pic.picture:
                     unique_photo = False
 
             if unique_photo:
+                print('Found unique photo')
                 new_photo = Photo()
                 picture_path = os.path.join(current_app.root_path, 'static/crop_pics', file)
 

@@ -59,15 +59,25 @@ class Photo(db.Model):
 # Update to current wirebot status
 class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    # start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     connection = db.Column(db.Boolean, nullable=False)  # if network connection: 1, else: 0
-    moving = db.Column(db.Boolean, nullable=False)  # if moving: 1, else 0
-    limit = db.Column(db.Integer)   # at which limit switch, 0 if not at a limit
-    picture_count = db.Column(db.Integer, nullable=False)    # number of pictures taken per session
+    capturing = db.Column(db.Boolean, nullable=False) # moving down paracord
+    rotating = db.Column(db.Boolean, nullable=False) # moving gimbal
+    shifting = db.Column(db.Boolean, nullable=False) # moving down aisles
+    finishing = db.Column(db.Boolean, nullable=False) # uploading pictures
+    # stop_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     location = db.relationship('Location', backref='status_at_loc', lazy=True)
 
     def __repr__(self):
-        return f"Status('{self.connection}','{self.moving}','{self.picture_count}')"
+        return f"Status('{self.connection}','{self.capturing}','{self.finishing}')"
+    
+class Buttons(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    start = db.Column(db.Boolean, nullable=False) # if start button pressed
+    stop = db.Column(db.Boolean, nullable=False)
 
+    def __repr__(self):
+        return f"Buttons('{self.start}', '{self.stop}')"
 
 # Location of wirebot
 class Location(db.Model):
