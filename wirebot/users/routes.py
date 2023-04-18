@@ -2,7 +2,7 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import login_user, current_user, logout_user, login_required
 from wirebot import db, bcrypt
 from wirebot.models import User, Post, Photo, Status, Location
-from wirebot.utils import run_wirebot, stop_wirebot, change_row_wirebot
+from wirebot.utils import run_wirebot, stop_wirebot
 from wirebot.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from wirebot.users.utils import save_picture_user, send_reset_email, update_dashboard
 import random, threading, calendar, datetime

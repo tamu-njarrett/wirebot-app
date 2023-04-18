@@ -48,23 +48,12 @@ def status():
                 data = ws.receive(0)
                 if data == 'capturing':
                     capturing()
-            # with open(status_file_path, 'r') as status_file:
-            #     current_command = status_file.read()
-            #     if 'new' in current_command:
-            #         c_new, command = current_command.split()
-            #         ws.send(command)        # sending update command
-            #        # data = ws.receive()     # receiving acknowledge
-            #        # if 'status' in data:
-            #        #     print(f'Actual status: {data}')
-            #        # else:
-            #        #     print(f'Other message received: {data}')
-
-            #         with open(status_file_path, 'w') as status_file:
-            #             status_file.write(f'old {command}')
-            #     else:
-            #         data = ws.receive(0)
-            #         if data == 'capturing':
-            #             capturing()
+                elif data == 'rotating':
+                    rotating()
+                elif data == 'shifting':
+                    shifting()
+                elif data == 'finishing':
+                    finishing
                     
 
     except simple_websocket.ConnectionClosed:
