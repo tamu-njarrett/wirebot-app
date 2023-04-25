@@ -1,11 +1,10 @@
 from . import main
-from flask import render_template, request, current_app
-from sqlalchemy import select, update
+from datetime import datetime
+from flask import render_template, request
 from wirebot import db
-from wirebot.models import Post, Status, Buttons
-from wirebot.utils import reset_buttons, reset_status, connection, capturing, rotating, shifting, finishing
-import simple_websocket, os
-
+from wirebot.models import Post, Buttons, Status, RunTime
+from wirebot.utils import reset_buttons, reset_status, connection, capturing, rotating, shifting, finishing, set_time, calc_run_time
+import simple_websocket
 
 
 @main.route("/")
@@ -26,7 +25,11 @@ def status():
     if ws.connected:
         print('Connected, preparing to send status update...')
         reset_status()  # resetting all status types 
-        reset_buttons   # reset button states
+        reset_buttons()   # reset button states
+        row_count = 0   # set row count to 0
+        timer = RunTime(start_time=datetime(year=1,month=1,day=1,hour=0,minute=0,second=0), stop_time=datetime(year=1,month=1,day=1,hour=0,minute=0,second=0))   # add a new entry for run time
+        db.session.add(timer)
+        db.session.commit()
         
     # Handshake loop with Jetson
     while True:
@@ -34,6 +37,7 @@ def status():
         if data == 'handshake':
             ws.send('ready')
             connection()    # update connection status
+            set_time(timer, 'start')    # add start time
             break
 
     try:
@@ -41,8 +45,7 @@ def status():
             stop_pressed = Buttons.query.filter_by(id=1).first().stop
             if stop_pressed == True:
                 ws.send('status=stop')
-                db.session.execute(update(Buttons), [{'id': 1, 'stop': 0}])
-                db.session.commit()
+                reset_buttons()
 
             else:
                 data = ws.receive(0)
@@ -51,14 +54,19 @@ def status():
                 elif data == 'rotating':
                     rotating()
                 elif data == 'shifting':
-                    shifting()
+                    row_count += 1
+                    shifting(row_count)
                 elif data == 'finishing':
-                    finishing
-                    
+                    finishing()
 
+
+    # Once Jetson disconnets, status is zeroed out
     except simple_websocket.ConnectionClosed:
         print(f'Client disconnected, code: {ws.close_reason}')
+        set_time(timer, 'stop') # add stop time
+        total_run_time = calc_run_time(timer)
         reset_status()
+        print(f'Total run time: {total_run_time}')
 
     ws.close()
     reset_status()

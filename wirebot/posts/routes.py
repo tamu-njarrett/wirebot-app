@@ -1,5 +1,7 @@
+from datetime import datetime, date
 from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from flask_login import current_user, login_required
+from sqlalchemy import select
 from wirebot import db
 from wirebot.models import Post, Photo, Location
 from wirebot.posts.forms import PostForm, PictureForm
@@ -78,6 +80,17 @@ def pictures():
         db.session.add(pic)
         db.session.commit()
     
+    # dates = list(Photo.query.order_by(Photo.date_uploaded.desc()).with_entities(Photo.date_uploaded).all())
+    # new_dates = []
+    # for picture_date in dates:
+
+    #     y_m_d = picture_date.date()
+    #     if y_m_d in new_dates:
+    #         pass
+    #     else:
+    #         new_dates += y_m_d
+
+    # print(new_dates)
 
     page = request.args.get('page', 1, type=int)
     photos = Photo.query.order_by(Photo.date_uploaded.desc()).paginate(page=page, per_page=12)

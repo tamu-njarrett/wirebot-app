@@ -1,11 +1,12 @@
+from datetime import datetime, time, timedelta
 from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app
 from flask_login import login_user, current_user, logout_user, login_required
 from wirebot import db, bcrypt
-from wirebot.models import User, Post, Photo, Status, Location
+from wirebot.models import User, Post, Status, RunTime
 from wirebot.utils import run_wirebot, stop_wirebot
 from wirebot.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from wirebot.users.utils import save_picture_user, send_reset_email, update_dashboard
-import random, threading, calendar, datetime
+import random, threading, calendar
 
 
 users = Blueprint('users', __name__, template_folder='templates')
@@ -110,15 +111,36 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-### Placeholder for real time values coming from Jetson TCP stream
+# Checking status -> update_dashboard -> dashboard_values -> dashboard
 @users.app_context_processor    # Using app_context_processor to inject values available even outside blueprint
 def inject_load():
-    #load = [int(random.random() * 100) / 10 for _ in range(3)]
     load = [int(random.random() * 100), int(random.randint(1,2)), int(random.random() * 1000)]
-    # wirebot_position = int(random.random() * 30)
-    # crop_row = int(random.uniform(0,2) * 2)
-    # run_time = time.localtime() - start_time()
-    return {'load1': load[0], 'load5': load[1], 'load15': load[2]}
+    connection = Status.query.filter_by(id=1).first().connection
+    connection = 'Yes' if connection == True else 'No'
+
+    row_num = Status.query.filter_by(id=1).first().row_num + 1
+
+    status = ''
+    if Status.query.filter_by(id=1).first().capturing == True:
+        status = 'Capturing'
+    elif Status.query.filter_by(id=1).first().rotating == True:
+        status = 'Rotating'
+    elif Status.query.filter_by(id=1).first().shifting == True:
+        status = 'Shifting'
+    elif Status.query.filter_by(id=1).first().finishing == True:
+        status = 'Finishing'
+
+    run_time = time()
+    if Status.query.filter_by(id=1).first().finishing:
+        run_time = RunTime.query.order_by(RunTime.id.desc()).first().run_time   # Getting most recent total run time
+    elif Status.query.filter_by(id=1).first().connection:
+        current_run_time = datetime.now() - RunTime.query.order_by(RunTime.id.desc()).first().start_time
+        total_seconds = int(current_run_time.total_seconds())
+        hours, remainder = divmod(total_seconds,60*60)
+        minutes, seconds = divmod(remainder,60)
+        run_time = time(hours, minutes, seconds)    # Getting current run time while operating
+    
+    return {'connection': connection, 'status': status, 'row_num': row_num, 'run_time': run_time}
 
 
 @users.before_app_first_request
@@ -130,8 +152,6 @@ def before_request():
 @users.route("/dashboard", methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    # loc = Location(payload_loc=0,horizontal_loc=0)
-
     if request.method == 'POST':
         if request.form.get('run') == 'run':
             run_wirebot()

@@ -1,8 +1,7 @@
-import simple_websocket, os
-from flask import request, current_app
-from sqlalchemy import MetaData, update
+from datetime import datetime, time
+from sqlalchemy import update
 from wirebot import db
-from wirebot.models import Status, Buttons
+from wirebot.models import Status, Buttons, RunTime
 
 # update status message to Jetson to start wirebot operation
 def run_wirebot():
@@ -14,6 +13,7 @@ def stop_wirebot():
     db.session.execute(update(Buttons), [{'id': 1, 'stop': 1}])
     db.session.commit()
 
+# reset both button states to 0
 def reset_buttons():
     db.session.execute(update(Buttons), [{'id': 1, 'start': 0}])
     db.session.execute(update(Buttons), [{'id': 1, 'stop': 0}])
@@ -30,6 +30,7 @@ def reset_status():
             {'id': 1, 'rotating': 0},
             {'id': 1, 'shifting': 0},
             {'id': 1, 'finishing': 0},
+            {'id': 1, 'row_num': 0},
         ],
     )
     db.session.commit()
@@ -39,7 +40,13 @@ def connection():
     db.session.commit()
 
 def capturing():
-    db.session.execute(update(Status),[{'id': 1, 'capturing': 1}])
+    db.session.execute(
+        update(Status),
+        [{'id': 1, 'capturing': 1},
+         {'id': 1, 'rotating': 0},
+         {'id': 1, 'shifting': 0},
+        ],
+    )
     db.session.commit()
 
 def rotating():
@@ -48,16 +55,19 @@ def rotating():
         [
             {'id': 1, 'capturing': 0},
             {'id': 1, 'rotating': 1},
+            {'id': 1, 'shifting': 0},
         ],
     )
     db.session.commit()
 
-def shifting():
+def shifting(row_count):
     db.session.execute(
         update(Status),
         [
             {'id': 1, 'rotating': 0},
+            {'id': 1, 'rotating': 0},
             {'id': 1, 'shifting': 1},
+            {'id': 1, 'row_num': row_count}
         ],
     )
     db.session.commit()
@@ -70,24 +80,27 @@ def finishing():
             {'id': 1, 'rotating': 0},
             {'id': 1, 'shifting': 0},
             {'id': 1, 'finishing': 1},
+            {'id': 1, 'row_num': 0},
         ],
     )
     db.session.commit()
 
+# Set either start or stop time
+def set_time(timer, start_or_stop):
+    if start_or_stop == 'start':
+        db.session.execute(update(RunTime), [{'id': timer.id, 'start_time': datetime.now()}])
+    elif start_or_stop == 'stop':
+        db.session.execute(update(RunTime), [{'id': timer.id, 'stop_time': datetime.now()}])
+    db.session.commit()
 
-def send_status_update(status_update):
-    ws = simple_websocket.Server(request.environ)
-    if ws.connected:
-        print('Connected, preparing to send status update...')
-    try:
-        while True:
-            ws.send(f'status={status_update}')
-            data = ws.receive()
-            print(data)
+# Calculate total run time
+def calc_run_time(timer):
+    total_run_time = timer.stop_time - timer.start_time
+    total_seconds = int(total_run_time.total_seconds())
+    hours, remainder = divmod(total_seconds,60*60)
+    minutes, seconds = divmod(remainder,60)
+    run_time_h_m_s = time(hours, minutes, seconds)
+    db.session.execute(update(RunTime), [{'id': timer.id, 'run_time': run_time_h_m_s}])
+    db.session.commit()
 
-    except simple_websocket.ConnectionClosed:
-        print(f'Client disconnected, code: {ws.close_reason}')
-
-    ws.close()
-
-    return ''
+    return run_time_h_m_s
