@@ -1,6 +1,7 @@
 from . import main
 from datetime import datetime
 from flask import render_template, request
+from flask_login import login_required
 from wirebot import db
 from wirebot.models import Post, Buttons, Status, RunTime
 from wirebot.utils import reset_buttons, reset_status, connection, capturing, rotating, shifting, finishing, set_time, calc_run_time
@@ -72,3 +73,10 @@ def status():
     reset_status()
 
     return ''
+
+@main.route("/run_times")
+@login_required
+def run_times():
+    run_times = RunTime.query.all()
+
+    return render_template('run_times.html', title='Historic Run Times', run_times=run_times)

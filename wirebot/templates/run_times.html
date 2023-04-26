@@ -13,18 +13,23 @@
             <p class="text-secondary">{{ current_user.email }}</p>
         </div>
     </div>
-        <legend class="border-bottom mb-4" style="font-size:40px">Dashboard</legend>
+        <legend class="border-bottom mb-4" style="font-size:40px">Historic Run Times</legend>
 
         <div class="body">
-            <p class="h5" font-weight="bold">Wirebot Controls</p>
-            <div class="form-group">
-                <form method="post" action="/dashboard">
-                    <button class="b b-run" type="submit" name="run" value="run">Run</button>
-                    <button class="b b-stop" type="submit" name="stop" value="stop">Stop</button>
-                </form>
-            </div>
-            <p class="h5" font-weight="bold">Wirebot Status</p>
-            {% include "dashboard_values.html" %}
+            <p class="h5" font-weight="bold"></p>
+                <table class="run_times" style="width:80%">
+                    <th>
+                        <tr style="color: black;">
+                        <th>Entry #</th><th>Start Time</th><th>Stop Time</th><th>Total Run Time</th>
+                        </tr>
+                    </th>
+
+                    {% for run_time in run_times %}
+                    <tr>
+                        <td>{{ run_time.id }}</td><td>{{ run_time.start_time }}</td><td>{{ run_time.stop_time }}</td><td>{{ run_time.run_time }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
         </div>
     {% endblock content %}
 </body>

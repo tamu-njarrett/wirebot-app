@@ -64,7 +64,7 @@ def shifting(row_count):
     db.session.execute(
         update(Status),
         [
-            {'id': 1, 'rotating': 0},
+            {'id': 1, 'capturing': 0},
             {'id': 1, 'rotating': 0},
             {'id': 1, 'shifting': 1},
             {'id': 1, 'row_num': row_count}

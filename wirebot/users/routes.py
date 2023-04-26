@@ -114,7 +114,6 @@ def reset_token(token):
 # Checking status -> update_dashboard -> dashboard_values -> dashboard
 @users.app_context_processor    # Using app_context_processor to inject values available even outside blueprint
 def inject_load():
-    load = [int(random.random() * 100), int(random.randint(1,2)), int(random.random() * 1000)]
     connection = Status.query.filter_by(id=1).first().connection
     connection = 'Yes' if connection == True else 'No'
 
@@ -130,17 +129,28 @@ def inject_load():
     elif Status.query.filter_by(id=1).first().finishing == True:
         status = 'Finishing'
 
-    run_time = time()
+    current_run_time = time()
+    previous_run_time = RunTime.query.order_by(RunTime.id.desc()).first().run_time
+    # Check if bot is finishing (returning home)
     if Status.query.filter_by(id=1).first().finishing:
-        run_time = RunTime.query.order_by(RunTime.id.desc()).first().run_time   # Getting most recent total run time
+        # Check if home operation has completed. If yes, then display total run time
+        if RunTime.query.order_by(RunTime.id.desc()).first().run_time == None:
+            current_run_time = datetime.now() - RunTime.query.order_by(RunTime.id.desc()).first().start_time
+            total_seconds = int(current_run_time.total_seconds())
+            hours, remainder = divmod(total_seconds,60*60)
+            minutes, seconds = divmod(remainder,60)
+            current_run_time = time(hours, minutes, seconds)    # Getting current run time while operating
+            previous_run_time = 'Wirebot still running'
+        else:
+            run_time = RunTime.query.order_by(RunTime.id.desc()).first().run_time
     elif Status.query.filter_by(id=1).first().connection:
         current_run_time = datetime.now() - RunTime.query.order_by(RunTime.id.desc()).first().start_time
         total_seconds = int(current_run_time.total_seconds())
         hours, remainder = divmod(total_seconds,60*60)
         minutes, seconds = divmod(remainder,60)
-        run_time = time(hours, minutes, seconds)    # Getting current run time while operating
+        current_run_time = time(hours, minutes, seconds)    # Getting current run time while operating
     
-    return {'connection': connection, 'status': status, 'row_num': row_num, 'run_time': run_time}
+    return {'connection': connection, 'status': status, 'row_num': row_num, 'current_run_time': current_run_time, 'previous_run_time': previous_run_time}
 
 
 @users.before_app_first_request
@@ -181,9 +191,8 @@ def wirebot_status():
 @users.route("/Calendar", methods=['GET', 'POST'])
 @login_required
 def calendar_page():
-    print('Routed to calendar')
-    currentMonth = datetime.datetime.now().month
-    currentYear = datetime.datetime.now().year
+    currentMonth = datetime.now().month
+    currentYear = datetime.now().year
     calendar_current_month = calendar.month(currentYear, currentMonth)
     return render_template('calendar_page.html', title='Calendar', calendar_current_month=calendar_current_month)
 
