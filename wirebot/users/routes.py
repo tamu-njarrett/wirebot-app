@@ -141,8 +141,6 @@ def inject_load():
             minutes, seconds = divmod(remainder,60)
             current_run_time = time(hours, minutes, seconds)    # Getting current run time while operating
             previous_run_time = 'Wirebot still running'
-        else:
-            run_time = RunTime.query.order_by(RunTime.id.desc()).first().run_time
     elif Status.query.filter_by(id=1).first().connection:
         current_run_time = datetime.now() - RunTime.query.order_by(RunTime.id.desc()).first().start_time
         total_seconds = int(current_run_time.total_seconds())

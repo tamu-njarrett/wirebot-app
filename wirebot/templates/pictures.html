@@ -24,7 +24,7 @@
   </div>
 <body>
     {% for photo in photos.items %}
-      <img src="{{ url_for('static', filename='crop_pics/' + photo.picture) }}" style="  float: left;width: 24%;padding:5px;margin-right: 1%;margin-bottom: 0.5rem">
+      <img src="{{ url_for('static', filename='crop_pics/' + photo.picture) }}" style="float: left;width: 24%;padding:5px;margin-right: 1%;margin-bottom: 0.5rem">
     {% endfor %}
     <p style="clear:both;"></p>
 

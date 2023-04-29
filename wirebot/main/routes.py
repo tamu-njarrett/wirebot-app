@@ -1,9 +1,9 @@
 from . import main
-from datetime import datetime
+from datetime import datetime, time
 from flask import render_template, request
 from flask_login import login_required
 from wirebot import db
-from wirebot.models import Post, Buttons, Status, RunTime
+from wirebot.models import Post, Buttons, RunTime
 from wirebot.utils import reset_buttons, reset_status, connection, capturing, rotating, shifting, finishing, set_time, calc_run_time
 import simple_websocket
 
@@ -11,9 +11,10 @@ import simple_websocket
 @main.route("/")
 @main.route("/home")
 def home():
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('home.html', posts=posts)
+    # Home page pictures
+    greenhouse = 'greenhouse.JPG'
+    integrated_system = 'integrated_system.jpg'
+    return render_template('home.html', greenhouse=greenhouse, integrated_system=integrated_system)
 
 
 @main.route("/about")
@@ -46,6 +47,8 @@ def status():
             stop_pressed = Buttons.query.filter_by(id=1).first().stop
             if stop_pressed == True:
                 ws.send('status=stop')
+                print('Stop button pressed')
+                button_stop_time = datetime.now()
                 reset_buttons()
 
             else:
@@ -59,6 +62,11 @@ def status():
                     shifting(row_count)
                 elif data == 'finishing':
                     finishing()
+                elif data == 'stopped':
+                    jetson_stop_time = datetime.now()
+                    stop_timer = jetson_stop_time - button_stop_time
+                    print(f'Stop button timer: {stop_timer}')
+
 
 
     # Once Jetson disconnets, status is zeroed out

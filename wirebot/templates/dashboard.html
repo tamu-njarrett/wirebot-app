@@ -1,10 +1,6 @@
 {% extends "layout.html" %}
 <body>
     {% block content %}
-    
-    <!-- Create socket to connect to wirebot -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-    <script type="text/javascript" charset="utf-8"></script>
     <div class="content-section">
         <div class="media">
         <img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/' + current_user.image_file) }}">
@@ -13,18 +9,17 @@
             <p class="text-secondary">{{ current_user.email }}</p>
         </div>
     </div>
-        <legend class="border-bottom mb-4" style="font-size:40px">Dashboard</legend>
-
-        <div class="body">
-            <p class="h5" font-weight="bold">Wirebot Controls</p>
-            <div class="form-group">
-                <form method="post" action="/dashboard">
-                    <button class="b b-run" type="submit" name="run" value="run">Run</button>
-                    <button class="b b-stop" type="submit" name="stop" value="stop">Stop</button>
-                </form>
-            </div>
-            <p class="h5" font-weight="bold">Wirebot Status</p>
-            {% include "dashboard_values.html" %}
+    <legend class="border-bottom mb-4" style="font-size:40px">Dashboard</legend>
+    <div class="body">
+        <p class="h5" font-weight="bold">Wirebot Controls</p>
+        <div class="form-group">
+            <form method="post" action="/dashboard">
+                <button class="b b-run" type="submit" name="run" value="run">Run</button>
+                <button class="b b-stop" type="submit" name="stop" value="stop">Stop</button>
+            </form>
         </div>
+        <p class="h5" font-weight="bold">Wirebot Status</p>
+        {% include "dashboard_values.html" %}
+    </div>
     {% endblock content %}
 </body>
